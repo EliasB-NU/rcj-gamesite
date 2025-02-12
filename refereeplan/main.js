@@ -51,12 +51,12 @@ function displayReferees(data) {
             <button class="submit-btn">${element}</button>
         `;
         container.appendChild(tr);
+        
 
         // Check for time till next game
         const now = new Date();
         const fiveMinutes = 5 * 60 * 1000; // 5 minutes in milliseconds
         const refereeGames = data.filter(d => d.schiri1 === element || d.schiri2 === element );
-        console.log(refereeGames);
 
         const upcomingGame = refereeGames.find(game => {
             const gameTime = parseTimeString(game.time);
@@ -64,13 +64,14 @@ function displayReferees(data) {
         });
 
         if (upcomingGame) {
-            tr.classList.add('submit-btn-prio');
+            // Todo: Highlight the referees who have upcoming games
         }
     });
     
 }
 
 // Display Games for specific referee
+
 
 // Helpers
 function uniq(a) {

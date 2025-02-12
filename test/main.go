@@ -25,7 +25,7 @@ func main() {
 	testData[0] = RJCData{
 		Field:   "A1",
 		Day:     "SA",
-		Time:    "17:00",
+		Time:    "21:50",
 		Schiri1: "David",
 		Schiri2: "Alex",
 		Team1:   "Devils",

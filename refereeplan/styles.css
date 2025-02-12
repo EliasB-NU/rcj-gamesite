@@ -46,7 +46,7 @@ th {
 	color: #263562;
 }
 
-.submit-btn-prio {
+.submit-btn.prio {
 	border: 3px solid rgb(277, 0, 15); 
 	background-color: rgb(277, 0, 15);
 }
