@@ -1,6 +1,5 @@
 <script setup>
 import { ref, onMounted, onUnmounted} from "vue";
-import ClockComponent from "@/components/ClockComponent.vue";
 
 const time = ref(new Date().toLocaleTimeString());
 
@@ -20,16 +19,10 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="clock">
+  <div>
     <p>{{ time }}</p>
   </div>
 </template>
 
 <style scoped>
-.clock {
-  width: 100%;
-  text-align: center;
-  font-size: 14em;
-  color: #333333;
-}
 </style>
