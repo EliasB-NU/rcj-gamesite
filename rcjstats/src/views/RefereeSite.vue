@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref} from 'vue'
+import { ref } from 'vue'
 import axios from "axios";
 import config from "@/config.js";
 import ClockComponent from "@/components/ClockComponent.vue";
