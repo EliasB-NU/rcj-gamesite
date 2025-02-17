@@ -18,7 +18,7 @@ const props = defineProps([
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  max-width: 450px;
+  max-width: 1000px;
   margin-bottom: 10px;
   display: flex;
   justify-content: space-between;

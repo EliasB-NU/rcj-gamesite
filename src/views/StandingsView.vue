@@ -3,6 +3,7 @@ import { ref } from "vue";
 import config from "@/config.js";
 import axios from "axios";
 import Header from "@/components/Header.vue";
+import LeagueStandingsComponent from "@/components/LeagueStandingsComponent.vue";
 
 // Fetch leagues
 const leagues = ref([]);
@@ -14,7 +15,6 @@ async function fetchLeagues() {
   } catch (error) {
     console.error(error);
   }
-  console.log(leagues.value);
 }
 
 fetchLeagues();
@@ -29,8 +29,6 @@ function updateValue() {
   leagueTitle.value = leagues.value[index].name;
   league.value = leagues.value[index];
 
-  console.log(leagueTitle.value);
-
   index = (index + 1) % leagues.value.length;
 }
 setInterval(updateValue, 10000);
@@ -39,7 +37,7 @@ setInterval(updateValue, 10000);
 
 <template>
   <Header :title="leagueTitle" mode="Standings" />
-
+  <LeagueStandingsComponent :league="league" />
 </template>
 
 <style scoped>
