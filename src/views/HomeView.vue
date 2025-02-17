@@ -10,14 +10,8 @@ import config from "@/config.js";
     <div class="projects-grid">
       <div class="project-container" v-on:click="$router.push('standings')">
         <div class="project-box">
-          <h2>Leagues</h2>
-          <p>View the leagues and their standings</p>
-        </div>
-      </div>
-      <div class="project-container" v-on:click="$router.push('referee')">
-        <div class="project-box">
-          <h2>Referees</h2>
-          <p>View the referees and their matches</p>
+          <h2>Standings</h2>
+          <p>View league standings</p>
         </div>
       </div>
       <div class="project-container" v-on:click="$router.push('games')">

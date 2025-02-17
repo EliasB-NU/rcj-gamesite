@@ -8,19 +8,33 @@ const props = defineProps([
 ]);
 
 // Get alle standings
-const standings = ref([]);
+const groupedStandings = ref([]);
 const latestStageName = ref('');
 
 async function fetchStandings(stage) {
   latestStageName.value = props.league.league_stages[stage] || 'Unknown';
   try {
-    const unsorted = ref([]);
     const response = await axios.get(`${config.api}/standings?league=${props.league.abbrev}&league_stage=${stage}&format=json`);
-    unsorted.value = response.data.standings;
-    standings.value = unsorted.value.sort((a, b) => a.rank - b.rank);
+    splitStandings(response.data.standings);
   } catch (error) {
     console.error(error);
   }
+}
+
+function splitStandings(unsortedUnfiltered) {
+    const unsortedGroupedStandings = unsortedUnfiltered.reduce((groups, team) => {
+      const groupKey = team.group;
+      if (!groups[groupKey]) {
+        groups[groupKey] = [];
+      }
+      groups[groupKey].push(team);
+      return groups;
+    }, {});
+    const sortedGroupedStandings = ref([]);
+    for (const group in unsortedGroupedStandings) {
+      sortedGroupedStandings.value.push(unsortedGroupedStandings[group].sort((a, b) => a.rank - b.rank));
+    }
+    groupedStandings.value = sortedGroupedStandings.value;
 }
 
 watch(
@@ -42,33 +56,36 @@ watch(
 </script>
 
 <template>
-  <div class="standings">
-    <div class="stageName">
-      <h1>{{ latestStageName }}</h1>
-    </div>
-    <div class="standingsTable">
-      <table>
-        <thead>
-        <tr>
-          <th>Rank</th>
-          <th>Team</th>
-          <th>Wins / Draw / Losses</th>
-          <th>Goals</th>
-          <th>Points</th>
-          <th>Qualification</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr v-for="team in standings" :key="team.id">
-          <td>{{ team.rank }}</td>
-          <td>{{ team.team.name }}</td>
-          <td>{{ team.wins +'/'+ team.draws +'/'+ team.losses}}</td>
-          <td>{{ team.scored +':'+ team.conceded }}</td>
-          <td>{{ team.points }}</td>
-          <td>{{ team.qualification }}</td>
-        </tr>
-        </tbody>
-      </table>
+  <div v-for="(standings, index) in groupedStandings" :key="index">
+    <div class="standings">
+      <div class="stageName">
+        <h1 v-if="groupedStandings.length>1">{{ latestStageName +' '+ index }}</h1>
+        <h1 v-else>{{ latestStageName }}</h1>
+      </div>
+      <div class="standingsTable">
+        <table>
+          <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Team</th>
+            <th>Wins / Draw / Losses</th>
+            <th>Goals</th>
+            <th>Points</th>
+            <th>Qualification</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="team in standings" :key="team.id">
+            <td>{{ team.rank }}</td>
+            <td>{{ team.team.name }}</td>
+            <td>{{ team.wins +'/'+ team.draws +'/'+ team.losses}}</td>
+            <td>{{ team.scored +':'+ team.conceded }}</td>
+            <td>{{ team.points }}</td>
+            <td>{{ team.qualification }}</td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </template>
