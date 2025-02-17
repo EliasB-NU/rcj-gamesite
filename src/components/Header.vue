@@ -1,7 +1,8 @@
 <script setup>
 const props = defineProps([
   'title',
-  'mode'
+  'stage',
+  'mode',
 ]);
 </script>
 
@@ -18,12 +19,12 @@ const props = defineProps([
   padding: 20px;
   border-radius: 15px;
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-  max-width: 1000px;
+  max-width: 2000px;
   margin-bottom: 10px;
   display: flex;
   justify-content: space-between;
   text-align: center;
-  position: fixed; top: 20px; left: 20px;
+  position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
 }
 
 .header-title {

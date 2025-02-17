@@ -1,5 +1,5 @@
 // Select your tournament
-const tournamentAbbreviation = 'vo25';
+const tournamentAbbreviation = 'votest';
 
 // Export the config
 export default {

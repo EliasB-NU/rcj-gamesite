@@ -4,6 +4,8 @@ import StandingsView from "@/views/StandingsView.vue";
 import HomeView from "@/views/HomeView.vue";
 import IntGameView from "@/views/IntGameView.vue";
 import EtGameView from "@/views/EtGameView.vue";
+import LwL1v1GameView from "@/views/LwL1v1GameView.vue";
+import GameView from "@/views/GameView.vue";
 
 const  routes = [
   {
@@ -17,14 +19,24 @@ const  routes = [
     component: RefereeView,
   },
   {
-    path: '/games/1v1',
-    name: '1v1 Games',
+    path: '/games/entry',
+    name: 'Entry Games',
     component: EtGameView,
+  },
+  {
+    path: '/games/lwl1v1',
+    name: 'LwL 1v1 Games',
+    component: LwL1v1GameView,
   },
   {
     path: '/games/2v2',
     name: '2v2 Games',
     component: IntGameView,
+  },
+  {
+    path: '/games',
+    name: 'All Games | Cycle',
+    component: GameView,
   },
   {
     path: '/standings',

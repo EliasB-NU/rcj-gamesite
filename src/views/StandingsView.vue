@@ -25,9 +25,11 @@ const leagueTitle = ref('');
 const league = ref();
 let index = 0;
 
-function updateValue() {
+
+async function updateValue() {
   leagueTitle.value = leagues.value[index].name;
   league.value = leagues.value[index];
+
 
   index = (index + 1) % leagues.value.length;
 }
