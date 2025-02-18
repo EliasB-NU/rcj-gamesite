@@ -46,7 +46,7 @@ jobs:
     - name: create env file
       run: |
         echo "GIT_COMMIT_HASH=${{ github.sha }}" >> ./envfile
-        cat ./envfile
+        echo "CF_DNS_API_TOKEN=${{ secrets.CF_DNS_API_TOKEN }}" >> ./envfile
 
     - name: Docker Stack Deploy
       uses: cssnr/stack-deploy-action@v1
