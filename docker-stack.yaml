@@ -1,5 +1,5 @@
 services:
     web:
-        image: "docker pull ghcr.io/eliasb-nu/rcj-gamesite:${GIT_COMMIT_HASH:-latest}"
+        image: "docker pull ghcr.io/eliasb-nu/rcj-gamesite:${GIT_COMMIT_HASH}"
         ports:
         - "3000:3000"
