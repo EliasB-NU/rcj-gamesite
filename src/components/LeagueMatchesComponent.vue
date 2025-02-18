@@ -4,7 +4,8 @@ import axios from "axios";
 import config from "@/config.js";
 
 const props = defineProps([
-  'stageId',
+  'leagueAbbrev',
+  'stage',
 ]);
 
 // Fetch games
@@ -13,9 +14,8 @@ const stageName = ref('');
 
 async function fetchGames() {
   try {
-    const response = await axios.get(`${config.api}/matches?league=${config.EntryAbbrev}&league_stage=${props.stageId}&format=json`);
-    groupedMatches.value = [];
-    stageName.value = response.data.league_stage_name;
+    const response = await axios.get(`${config.api}/matches?league=${props.leagueAbbrev}&league_stage=${props.stage}&format=json`);
+    stageName.value = response.data.matches[0].league_stage;
     splitAndSortMatches(response.data.matches);
   } catch (error) {
     console.error(error);
@@ -64,16 +64,22 @@ function formatDate(isoString) {
 
 // Watch update
 watch(
-  () => props.stageId,
+  () => props.stage || props.leagueAbbrev,
   async () => {
+    console.log('Fetching games');
+    console.log(props.stage, props.leagueAbbrev);
     await fetchGames();
-    console.log(groupedMatches.value);
+  },
+  {
+    immediate: true,
   }
 )
 </script>
 
 <template>
-  <h1>{{ stageName }}</h1>
+  <div class="stageName standings">
+    <h1>{{ stageName }}</h1>
+  </div>
   <div v-for="(matches, index) in groupedMatches" :key="index">
     <div class="standings">
       <div class="stageName">
@@ -81,7 +87,7 @@ watch(
         <h1 v-else>{{ matches.league_stage_name }}</h1>
       </div>
       <div class="standingsTable">
-        <table>
+        <table v-if="matches[0].team1 !== null && matches[0].team2 !== null">
           <thead>
           <tr>
             <th>Nr.</th>
@@ -99,9 +105,12 @@ watch(
             <td>{{ match.team1.name || ''}}</td>
             <td>{{ match.team2.name || ''}}</td>
             <td>{{ match.start }}</td>
-            <td>{{ match.pitch }}</td>
-            <td>{{ match.goals1 +' : '+ match.goals2 }}</td>
-            <td>{{ match.points1 +' : '+ match.points2 }}</td>
+            <td v-if="match.pitch !== null">{{ match.pitch }}</td>
+            <td v-else>TBD</td>
+            <td v-if="match.goals1 !== null && match.goals2 !== null">{{ match.goals1 +' : '+ match.goals2 }}</td>
+            <td v-else>TBD</td>
+            <td v-if="match.points1 !== null && match.points2 !== null">{{ match.points1 +' : '+ match.points2 }}</td>
+            <td v-else>TBD</td>
           </tr>
           </tbody>
         </table>

@@ -20,7 +20,7 @@ export default {
   api: 'http://rcjsoccersys.dankel.info/rest/v1/'+TournamentAbbreviation,
 
   EntryAbbrev: '1v1',
-  LwLEntryAbbrev: '1w1',
+  LwLEntryAbbrev: 'lw1',
 
   displayRescue: true,
   rescueURL: 'https://portal.robocup.de/rescue/scoring/uebersicht/Vöhringen?discipline=0&interval=10&active=true&modal=false&printView=false',

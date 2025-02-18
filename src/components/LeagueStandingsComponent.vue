@@ -52,6 +52,9 @@ watch(
         });
     }
     await fetchStandings(latestStage.value);
+  },
+  {
+    immediate: true
   }
 );
 </script>
@@ -76,7 +79,7 @@ watch(
           </tr>
           </thead>
           <tbody>
-          <tr v-for="team in standings" :key="team.id" :class="team.rank === 1 ? 'first' : ''">
+          <tr v-for="team in standings" :key="team.id">
             <td>{{ team.rank }}</td>
             <td>{{ team.team.name }}</td>
             <td>{{ team.wins +'/'+ team.draws +'/'+ team.losses}}</td>
@@ -112,9 +115,5 @@ table {
 th, tr, td {
   font-size: 24px;
   text-align: center;
-}
-
-.first {
-  background-color: #f0f0f0;
 }
 </style>

@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import axios from 'axios';
 import config from '@/config.js';
 import Header from '@/components/Header.vue'
-import LeagueGamesComponent from '@/components/LeagueGamesComponent.vue'
+import LeagueMatchesComponent from '@/components/LeagueMatchesComponent.vue'
 
 // Fetch leagues
 const stages = ref([]);
@@ -28,7 +28,7 @@ async function checkStage(stage) {
   try {
     const response = await axios.get(`${config.api}/matches?league=${config.EntryAbbrev}&league_stage=${stage}&format=json`);
     matches.value = response.data.matches;
-    if (matches.length > 0) {
+    if (matches.value.length > 0) {
       stages.value.push(stage);
     }
   } catch (error) {
@@ -48,12 +48,13 @@ function updateStage() {
 
   index = (index + 1) % stages.value.length;
 }
-setInterval(updateStage, 4000);
+// Refresh every 10 seconds
+setInterval(updateStage, 10000);
 </script>
 
 <template>
-  <Header mode="Games" title="Entry"/>
-  <LeagueGamesComponent :stageId="stageId" />
+  <Header mode="Matches" title="Entry"/>
+  <LeagueMatchesComponent :stage="stageId" :league-abbrev="config.EntryAbbrev"/>
 </template>
 
 <style scoped>
