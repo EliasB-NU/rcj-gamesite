@@ -10,13 +10,20 @@ In `src/config.js` set your tournament abbrev.
 Then run following commands:
 
 ```bash
-npm run build
+npm install
 
-git add dist
-git commit -m 'new build'
+npm install gh-pages --save-dev
 
-git subtree push --prefix dist origin gh-pages
+npm run deploy
 ```
 
-For questions, contect me:
+For questions, contact me:
 <braunelias@tghd.email>
+
+# Future plans
+
+ - [ ] Add an option to select which leagues to display
+ - [ ] Make the selection of the tournament easier
+ - [ ] More customisation (colors, logos, etc.)
+
+If you want to contribute, feel free to open a pull request.

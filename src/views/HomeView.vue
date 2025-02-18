@@ -26,6 +26,24 @@ import config from "@/config.js";
           <a v-bind:href="config.rescueURL">Rescue</a>
         </div>
       </div>
+      <div class="project-container" v-on:click="$router.push('games/entry')">
+        <div class="project-box">
+          <h2>Games -  Entry</h2>
+          <p>View the games and their results</p>
+        </div>
+      </div>
+      <div class="project-container" v-on:click="$router.push('games/lwl1v1')">
+        <div class="project-box">
+          <h2>Games - Lightweight Entry</h2>
+          <p>View the games and their results</p>
+        </div>
+      </div>
+      <div class="project-container" v-on:click="$router.push('games/2v2')">
+        <div class="project-box">
+          <h2>Games - 2v2</h2>
+          <p>View the games and their results</p>
+        </div>
+      </div>
     </div>
   </div>
 </template>

@@ -15,6 +15,7 @@ async function fetchStandings(stage) {
   latestStageName.value = props.league.league_stages[stage] || 'Unknown';
   try {
     const response = await axios.get(`${config.api}/standings?league=${props.league.abbrev}&league_stage=${stage}&format=json`);
+    groupedStandings.value = [];
     splitStandings(response.data.standings);
   } catch (error) {
     console.error(error);
@@ -59,7 +60,7 @@ watch(
   <div v-for="(standings, index) in groupedStandings" :key="index">
     <div class="standings">
       <div class="stageName">
-        <h1 v-if="groupedStandings.length>1">{{ latestStageName +' '+ index }}</h1>
+        <h1 v-if="groupedStandings.length>1">{{ latestStageName +' '+ standings[0].group }}</h1>
         <h1 v-else>{{ latestStageName }}</h1>
       </div>
       <div class="standingsTable">
@@ -75,7 +76,7 @@ watch(
           </tr>
           </thead>
           <tbody>
-          <tr v-for="team in standings" :key="team.id">
+          <tr v-for="team in standings" :key="team.id" :class="team.rank === 1 ? 'first' : ''">
             <td>{{ team.rank }}</td>
             <td>{{ team.team.name }}</td>
             <td>{{ team.wins +'/'+ team.draws +'/'+ team.losses}}</td>
@@ -102,18 +103,6 @@ watch(
   margin-left: 30px;
 }
 
-.stageName {
-  text-align: center;
-  margin: 10px 10px 30px;
-}
-
-h1 {
-  text-align: center;
-  font-size: 36px;
-  font-weight: bold;
-  text-decoration: underline;
-}
-
 table {
   width: 100%;
   border-collapse: collapse;
@@ -123,5 +112,9 @@ table {
 th, tr, td {
   font-size: 24px;
   text-align: center;
+}
+
+.first {
+  background-color: #f0f0f0;
 }
 </style>
