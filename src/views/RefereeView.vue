@@ -153,6 +153,17 @@ const deselectReferee = () => {
 </template>
 
 <style scoped>
+
+.container {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  align-content: flex-start;
+  gap: 10px;
+  gap: 10px 10px
+}
+
 .refereesPlan {
   margin: 20px;
   width: 100%;
@@ -205,13 +216,13 @@ const deselectReferee = () => {
   border: 0;
   height: 100%;
   width: 100%;
-  padding-left: 0.2em;
-  padding-right: 0.2em;
+  padding-left: 0.1em;
+  padding-right: 0.1em;
   display: inline-block;
   background: white;
   color: #333333;
   font-weight: 700;
-  font-size: 2.5em;
+  font-size: 2em;
   text-align: center;
   white-space: nowrap;
 }
@@ -219,10 +230,9 @@ const deselectReferee = () => {
 .clock {
   position: fixed;
   top: 50%;
-  left: 50%;
+  left: 3.7em;
   transform: translate(-50%, -50%);
   width: 100%;
-  text-align: center;
   font-size: 14em;
   color: #333333;
 }
