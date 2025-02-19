@@ -17,7 +17,7 @@ const TournamentAbbreviation = 'votest';
 
 // Export the config
 export default {
-  api: 'http://rcjsoccersys.dankel.info/rest/v1/'+TournamentAbbreviation,
+  api: 'https://rcjsoccersys.dankel.info/rest/v1/'+TournamentAbbreviation,
 
   EntryAbbrev: '1v1',
   LwLEntryAbbrev: 'lw1',
