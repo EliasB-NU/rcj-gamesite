@@ -15,11 +15,24 @@ async function fetchStandings(stage) {
   latestStageName.value = props.league.league_stages[stage] || 'Unknown';
   try {
     const response = await axios.get(`${config.api}/standings?league=${props.league.abbrev}&league_stage=${stage}&format=json`);
+    const standings = replaceUndefinedWith0(response.data.standings);
     groupedStandings.value = [];
-    splitStandings(response.data.standings);
+    splitStandings(standings);
   } catch (error) {
     console.error(error);
   }
+}
+
+function replaceUndefinedWith0(standings) {
+    return standings.map(standing => {
+      standing.wins = standing.wins || 0;
+      standing.draws = standing.draws || 0;
+      standing.losses = standing.losses || 0;
+      standing.scored = standing.scored || 0;
+      standing.conceded = standing.conceded || 0;
+      standing.points = standing.points || 0;
+      return standing;
+    });
 }
 
 function splitStandings(unsortedUnfiltered) {
@@ -82,7 +95,7 @@ watch(
           <tr v-for="team in standings" :key="team.id">
             <td>{{ team.rank }}</td>
             <td>{{ team.team.name }}</td>
-            <td>{{ team.wins +'/'+ team.draws +'/'+ team.losses}}</td>
+            <td>{{ team.wins +'/'+ team.draws +'/'+ team.losses }}</td>
             <td>{{ team.scored +':'+ team.conceded }}</td>
             <td>{{ team.points }}</td>
             <td>{{ team.qualification }}</td>

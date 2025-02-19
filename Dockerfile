@@ -1,37 +1,22 @@
-FROM golang:1.23.5-alpine AS builder-go
+# build stage
+FROM node:lts-alpine as build-stage
 
-WORKDIR /backend
+WORKDIR /app
 
-COPY backend/go.mod backend/go.sum ./
-
-RUN go mod download
-
-COPY backend/main.go main.go
-
-RUN go build main.go
-
-
-FROM node:current-alpine AS builder-npm
-
-WORKDIR /web
-
-COPY / ./
+COPY package*.json ./
 
 RUN npm install
+
+COPY . .
 
 RUN npm run build
 
 
-FROM alpine:latest
+# production stage
+FROM nginx:stable-alpine as production-stage
 
-RUN apk --no-cache add ca-certificates
+COPY --from=build-stage /app/dist /usr/share/nginx/html
 
-WORKDIR /app
+EXPOSE 80
 
-COPY --from=builder-go /backend/main .
-
-COPY --from=builder-npm /web/dist ./dist
-
-EXPOSE 3000
-
-CMD ["./main"]
+CMD ["nginx", "-g", "daemon off;"]

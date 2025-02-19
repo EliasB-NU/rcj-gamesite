@@ -32,12 +32,10 @@ services:
         image: "ghcr.io/eliasb-nu/rcj-gamesite:${GIT_COMMIT_HASH:-latest}"
         labels:
             - "traefik.enable=true"
-            - "traefik.http.services.web.loadbalancer.server.port=3000"
+            - "traefik.http.services.web.loadbalancer.server.port=80"
             - "traefik.http.routers.web.rule=Host(`rcjv.braunelias.com`)"
             - "traefik.http.routers.web.entrypoints=websecure"
             - "traefik.http.routers.web.tls.certresolver=cfACME"
-        ports:
-        - "3000:3000"
 
 volumes:
     letsencrypt:
