@@ -13,6 +13,7 @@ async function fetchMatches() {
   try {
     const response = await axios.get(`${config.api}/matches?format=json`)
     for (const match of response.data.matches) {
+
       for (const referee of match.referees) {
         if (referees.value.indexOf(referee.first_name + ' ' + referee.last_name) === -1) {
           referees.value.push(referee.first_name + ' ' + referee.last_name)
@@ -21,12 +22,10 @@ async function fetchMatches() {
     }
     referees.value = referees.value.sort()
     extractRefereesAndAssignMatches(response.data.matches)
-    filterAndSortMatches()
   } catch (error) {
     console.error(error)
   }
 }
-
 fetchMatches()
 setInterval(fetchMatches, 10000)
 
@@ -46,10 +45,8 @@ function extractRefereesAndAssignMatches(matches) {
       refereesMatches.value.get(referee.first_name + ' ' + referee.last_name).push(match)
     }
   }
-}
 
-// Delete past matches and sort the remaining matches by date
-function filterAndSortMatches() {
+  // Filter and sort
   const now = new Date() // Get the current time
 
   refereesMatches.value.forEach((matches, referee) => {
@@ -92,9 +89,10 @@ const deselectTimeout = ref(null)
 const AUTO_DESELECT_TIME = 10000 // Time in milliseconds (10 seconds)
 
 const showMatches = (referee) => {
+  console.log(currentReferee.value)
   clockPosition.value = !clockPosition.value
   currentReferee.value = referee
-  currentMatches.value = refereesMatches.value.get(referee) || []
+  currentMatches.value = refereesMatches.value.get(referee)
 
   deselectTimeout.value = setTimeout(deselectReferee, AUTO_DESELECT_TIME)
 }
@@ -132,16 +130,23 @@ const deselectReferee = () => {
           <table v-if="!clockPosition">
             <thead>
             <tr>
-              <th>Match</th>
+              <th>Table</th>
               <th>Start</th>
-              <th>Teams</th>
+              <th>Team 1</th>
+              <th>Team 2</th>
+              <th>League</th>
+              <th>Partner</th>
             </tr>
             </thead>
             <tbody>
             <tr v-for="match in currentRefereeMatches" :key="match.number">
-              <td>{{ match.name }}</td>
-              <td>{{ match.formattedStart }}</td>
-              <td>{{ match.teams }}</td>
+              <td>{{ match.pitch }}</td>
+              <td>{{ match.start }}</td>
+              <td>{{ match.team1.name }}</td>
+              <td>{{ match.team2.name }}</td>
+              <td>{{ match.league }}</td>
+              <td v-if="currentReferee !== match.referees[0].first_name + ' ' + match.referees[0].last_name">{{ match.referees[0].first_name + ' ' + match.referees[0].last_name }}</td>
+              <td v-else>{{ match.referees[1].first_name + ' ' + match.referees[1].last_name }}</td>
             </tr>
             </tbody>
           </table>
