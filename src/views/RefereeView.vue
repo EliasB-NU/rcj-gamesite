@@ -1,149 +1,167 @@
 <script setup>
 import { ref } from 'vue'
-import axios from "axios";
-import config from "@/config.js";
-import ClockComponent from "@/components/ClockComponent.vue";
+import axios from 'axios'
+import config from '@/config.js'
+import ClockComponent from '@/components/ClockComponent.vue'
 
 // Define a reactive variable to store the list of matches
-const matches = ref([]);
+const refereesMatches = ref(new Map())
+const referees = ref([])
+
 
 async function fetchMatches() {
   try {
-    const response = await axios.get(`${config.api}/matches?format=json`);
-    matches.value = response.data;
-    extractReferees();
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-fetchMatches();
-setInterval(fetchMatches, 10000);
-
-// Extract all the referees for displaying them on the site
-const referees = ref([]);
-
-function extractReferees() {
-  matches.value.matches.forEach(match => {
-    const referee = JSON.parse(match.referees);
-    const refName = `${referee.fist_name} ${referee.last_name}`;
-    if (!referees.value.includes(refName)) {
-      referees.value.push(refName);
+    const response = await axios.get(`${config.api}/matches?format=json`)
+    for (const match of response.data.matches) {
+      for (const referee of match.referees) {
+        if (referees.value.indexOf(referee.first_name + ' ' + referee.last_name) === -1) {
+          referees.value.push(referee.first_name + ' ' + referee.last_name)
+        }
+      }
     }
-  });
+    referees.value = referees.value.sort()
+    extractRefereesAndAssignMatches(response.data.matches)
+    filterAndSortMatches()
+  } catch (error) {
+    console.error(error)
+  }
 }
 
-// Logic for selecting a referee
-const clockPosition = ref(false);
-const refereeMatches = ref([]);
-const theReferee = ref('');
-const deselectTimeout = ref(null); // Timeout reference
-const AUTO_DESELECT_TIME = 10000; // Time in milliseconds (10 seconds)
+fetchMatches()
+setInterval(fetchMatches, 10000)
 
-const selectReferee = (referee) => {
-  theReferee.value = referee;
-  clockPosition.value = !clockPosition.value;
-
-  if (clockPosition.value) {
-    refereeMatches.value = matches.value.matches.filter(match => {
-      const ref = JSON.parse(match.referees);
-      return `${ref.fist_name} ${ref.last_name}` === referee;
-    });
+function extractRefereesAndAssignMatches(matches) {
+  // Extract the list of referees from the list of matches
+  for (const match of matches) {
+    for (const referee of match.referees) {
+      if (!refereesMatches.value.has(referee.first_name + ' ' + referee.last_name)) {
+        refereesMatches.value.set(referee.first_name + ' ' + referee.last_name, [])
+      }
+    }
   }
 
-  deselectTimeout.value = setTimeout(deselectReferee, AUTO_DESELECT_TIME);
+  // Assign the matches to the referees
+  for (const match of matches) {
+    for (const referee of match.referees) {
+      refereesMatches.value.get(referee.first_name + ' ' + referee.last_name).push(match)
+    }
+  }
+}
+
+// Delete past matches and sort the remaining matches by date
+function filterAndSortMatches() {
+  const now = new Date() // Get the current time
+
+  refereesMatches.value.forEach((matches, referee) => {
+    const filteredSortedMatches = matches
+      .filter(match => new Date(match.start).getTime() > now.getTime()) // Remove past matches
+      .sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime()) // Sort by start time
+      .map(match => ({
+        ...match,
+        formattedStart: formatDate(match.start) // Add formatted start time
+      }))
+
+    if (filteredSortedMatches.length > 0) {
+      refereesMatches.value.set(referee, filteredSortedMatches)
+    } else {
+      refereesMatches.value.delete(referee) // Remove referee if they have no future matches
+    }
+  })
+}
+
+// Date formatting
+const dayMap = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA']
+
+// Format start date as "MO 12:00"
+function formatDate(isoString) {
+  if (!isoString) return 'TBD' // Handle missing dates
+
+  const date = new Date(isoString)
+  const day = dayMap[date.getDay()]
+  const time = date.toTimeString().slice(0, 5) // Get HH:MM format
+
+  return `${day} ${time}`
+}
+
+// Actually logic for displaying matches and highlighting referees with upcoming matches
+const clockPosition = ref(true)
+const currentRefereeMatches = ref([])
+const currentReferee = ref('')
+const currentMatches = ref([])
+const deselectTimeout = ref(null)
+const AUTO_DESELECT_TIME = 10000 // Time in milliseconds (10 seconds)
+
+const showMatches = (referee) => {
+  clockPosition.value = !clockPosition.value
+  currentReferee.value = referee
+  currentMatches.value = refereesMatches.value.get(referee) || []
+
+  deselectTimeout.value = setTimeout(deselectReferee, AUTO_DESELECT_TIME)
 }
 
 
 const deselectReferee = () => {
-  theReferee.value = null;
-  clockPosition.value = false;
-  refereeMatches.value = [];
+  currentReferee.value = null
+  clockPosition.value = true
+  currentMatches.value = []
   if (deselectTimeout.value) {
-    clearTimeout(deselectTimeout.value);
-    deselectTimeout.value = null;
+    clearTimeout(deselectTimeout.value)
+    deselectTimeout.value = null
   }
 }
 </script>
 
 <template>
-  <body>
-  <table class="site" style="width: 100%;">
-    <tbody>
-    <tr>
-      <td>
-        <table id="mainTable">
-          <tbody>
-          <tr>
-            <ClockComponent v-if="clockPosition" class="clock-btn"/>
-            <td v-for="referee in referees">
-              <button
-                @click="selectReferee(referee)"
-                class="submit-btn"
-                :class="{checked: theReferee === referee}"
-              >
-                {{ referee }}
-              </button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-      <td>
-        <ClockComponent v-if="!clockPosition" class="clock"/>
-        <table id="plan" class="plan" v-if="clockPosition">
-          <tbody>
-          <tr>
-            <th>Table</th>
-            <th>Day</th>
-            <th>Time</th>
-            <th>Team 1</th>
-            <th>Team 2</th>
-            <th>League</th>
-          </tr>
-          <tr v-for="match in refereeMatches">
-            <td>{{ match.pitch }}</td>
-            <td>{{ match.start }}</td>
-            <td>{{ match.league }}</td>
-            <td>{{ match.team1.name }}</td>
-            <td>{{ match.team2.name }}</td>
-            <td>{{ match.league }}</td>
-          </tr>
-          </tbody>
-        </table>
-      </td>
-    </tr>
-    </tbody>
-  </table>
-  </body>
+  <div class="refereesPlan">
+    <!-- Main Table, 20% Left for Referees, 80% Right for clock or Games of a Referee -->
+    <table>
+      <tbody>
+      <tr>
+        <!-- Referees -->
+        <td class="referees">
+          <ClockComponent class="clock-btn" v-if="!clockPosition" />
+          <div v-for="referee in referees" :key="referee">
+            <button @click="showMatches" class="submit-btn"
+                    :style="{checked: referee === currentReferee}">{{ referee }}
+            </button>
+          </div>
+        </td>
+        <!-- Clock or Games of a Referee -->
+        <td class="matches">
+          <ClockComponent class="clock" v-if="clockPosition" />
+          <table v-if="!clockPosition">
+            <thead>
+            <tr>
+              <th>Match</th>
+              <th>Start</th>
+              <th>Teams</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="match in currentRefereeMatches" :key="match.number">
+              <td>{{ match.name }}</td>
+              <td>{{ match.formattedStart }}</td>
+              <td>{{ match.teams }}</td>
+            </tr>
+            </tbody>
+          </table>
+        </td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 </template>
 
 <style scoped>
-body, html {
-  height: 100%;
-  font-family: Arial, Helvetica, sans-serif;
-}
-
-body {
-  margin: 0;
-}
-
-div {
-  height: 100%;
-}
-
-table {
-  height: 100%;
+.refereesPlan {
+  margin: 20px;
   width: 100%;
-  font-size: 1.3em;
+  height: 100%;
+  border-collapse: collapse;
 }
 
-td {
-  padding: 0;
-}
-
-th {
-  text-align: left;
+.referees {
+  width: 20%;
 }
 
 .submit-btn {
@@ -160,6 +178,10 @@ th {
   font-size: 1em;
   text-align: center;
   white-space: nowrap;
+  margin: 1%;
+  border-radius: 5px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  position: relative;
 }
 
 .submit-btn.checked {
@@ -177,6 +199,7 @@ th {
   color: rgb(277, 0, 15);
 }
 
+
 .clock-btn {
   text-decoration: none;
   border: 0;
@@ -184,7 +207,7 @@ th {
   width: 100%;
   padding-left: 0.2em;
   padding-right: 0.2em;
-  display: inline-table;
+  display: inline-block;
   background: white;
   color: #333333;
   font-weight: 700;
@@ -193,40 +216,18 @@ th {
   white-space: nowrap;
 }
 
-.plan {
-  margin: 0.5em 0.3em;
-  height: auto;
-  border-collapse: collapse;
-  color: #333333;
-}
-
-.plan tr td, .plan tr th {
-  padding: 0.4em;
-  border: 2px solid #c8c8c8;
-}
-
-.plan tr:nth-child(odd) {
-  background-color: #ffffff;
-}
-
-.plan tr:nth-child(even) {
-  background-color: #f9f9f9;
-}
-
-.plan tr:first-child {
-  background-color: #f4f4f4;
-}
-
-.site tr td:first-child {
-  width:1%;
-  white-space:nowrap;
-}
-
 .clock {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 100%;
   text-align: center;
   font-size: 14em;
   color: #333333;
-  display: inline-table;
+}
+
+.matches {
+  width: 80%;
 }
 </style>
