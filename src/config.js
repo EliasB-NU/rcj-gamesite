@@ -13,14 +13,14 @@
  */
 
 // Select your tournament
-const TournamentAbbreviation = 'votest';
+const TournamentAbbreviation = 'vo25';
 
 // Export the config
 export default {
   api: 'https://rcjsoccersys.dankel.info/rest/v1/'+TournamentAbbreviation,
 
-  EntryAbbrev: '1v1',
-  LwLEntryAbbrev: 'lw1',
+  EntryAbbrev: 'et',
+  LwLEntryAbbrev: 'lwl1v',
 
   displayRescue: true,
   rescueURL: 'https://portal.robocup.de/rescue/scoring/uebersicht/Vöhringen?discipline=0&interval=10&active=true&modal=false&printView=false',

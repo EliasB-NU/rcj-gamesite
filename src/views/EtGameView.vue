@@ -37,7 +37,7 @@ async function checkStage(stage) {
 }
 fetchLeagues();
 // Update every 5 minutes
-setInterval(fetchLeagues, 300000);
+setInterval(fetchLeagues, 5000);
 
 // Cycle through stages of the Entry league
 const stageId = ref(0);

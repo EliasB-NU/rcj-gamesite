@@ -8,13 +8,14 @@ import MatchComponent from '@/components/MatchComponent.vue'
 // Define a reactive variable to store the list of matches
 const refereesMatches = ref(new Map())
 const referees = ref([])
+const upcomingReferees = ref([])
 
 
 async function fetchMatches() {
+  refereesMatches.value = new Map()
   try {
     const response = await axios.get(`${config.api}/matches?format=json`)
     for (const match of response.data.matches) {
-
       for (const referee of match.referees) {
         if (referees.value.indexOf(referee.first_name + ' ' + referee.last_name) === -1) {
           referees.value.push(referee.first_name + ' ' + referee.last_name)
@@ -27,8 +28,8 @@ async function fetchMatches() {
     console.error(error)
   }
 }
+
 fetchMatches()
-setInterval(fetchMatches, 10000)
 
 function extractRefereesAndAssignMatches(matches) {
   // Extract the list of referees from the list of matches
@@ -49,6 +50,7 @@ function extractRefereesAndAssignMatches(matches) {
 
   // Filter and sort
   const now = new Date() // Get the current time
+  const tenMinutesLater = new Date(now.getTime() + 10 * 60 * 1000) // Now + 10 minutes
 
   refereesMatches.value.forEach((matches, referee) => {
     const filteredSortedMatches = matches
@@ -58,12 +60,26 @@ function extractRefereesAndAssignMatches(matches) {
         ...match,
         formattedStart: formatDate(match.start) // Add formatted start time
       }))
-
     if (filteredSortedMatches.length > 0) {
       refereesMatches.value.set(referee, filteredSortedMatches)
     } else {
-      refereesMatches.value.delete(referee) // Remove referee if they have no future matches
+      refereesMatches.value.delete(referee)
     }
+
+    // Check if the referee has an upcoming match in the next 10 minutes
+    const upcomingMatches = filteredSortedMatches.filter(match => new Date(match.start).getTime() < tenMinutesLater.getTime())
+    upcomingReferees.value = []
+    if (upcomingMatches.length > 0) {
+      if (upcomingReferees.value.indexOf(referee) === -1) {
+        upcomingReferees.value.push(referee)
+      }
+    } else {
+      const index = upcomingReferees.value.indexOf(referee)
+      if (index !== -1) {
+        upcomingReferees.value.splice(index, 1)
+      }
+    }
+
   })
 }
 
@@ -85,35 +101,40 @@ function formatDate(isoString) {
 const clockPosition = ref(true)
 const currentReferee = ref('')
 const currentMatches = ref([])
+const amountOfReferees = ref(0)
 const deselectTimeout = ref(null)
-const AUTO_DESELECT_TIME = 10000 // Time in milliseconds (10 seconds)
 
-const showMatches = (referee) => {
-  currentReferee.value = referee
-  console.log(currentReferee.value)
+
+const showMatches = async (referee) => {
+  if (deselectTimeout.value) {
+    clearTimeout(deselectTimeout.value)
+    deselectTimeout.value = null
+  }
+  currentReferee.value = ''
+  currentMatches.value = []
+  amountOfReferees.value = 0
+  await fetchMatches()
   clockPosition.value = false
-  console.log(refereesMatches.value)
-  currentMatches.value = refereesMatches.value[referee]
-  console.log(currentMatches.value)
-  deselectTimeout.value = setTimeout(deselectReferee, AUTO_DESELECT_TIME)
+  currentReferee.value = referee
+  amountOfReferees.value = Math.max(...refereesMatches.value.get(referee).map(match => match.referees.length))
+  currentMatches.value = refereesMatches.value.get(referee)
+
+
+  deselectTimeout.value = setTimeout(deselectReferee, 10000)
 }
 
 
-const deselectReferee = () => {
-  currentReferee.value = null
+const deselectReferee = async () => {
   clockPosition.value = true
+  currentReferee.value = ''
   currentMatches.value = []
+  amountOfReferees.value = 0
+
   if (deselectTimeout.value) {
     clearTimeout(deselectTimeout.value)
     deselectTimeout.value = null
   }
 }
-
-function getUpComingMatches() {
-
-}
-getUpComingMatches()
-setInterval(getUpComingMatches, 30000)
 </script>
 
 <template>
@@ -127,20 +148,21 @@ setInterval(getUpComingMatches, 30000)
           <ClockComponent class="clock-btn" v-if="!clockPosition" />
           <div v-for="referee in referees" :key="referee">
             <button
-              class="submit-btn"
+              :class="{ 'submit-btn': true, 'priority': upcomingReferees.includes(referee),  'checked': currentReferee === referee }"
               @click="showMatches(referee)"
-              :class="{ checked: currentReferee === referee }"
             >
               {{ referee }}
             </button>
           </div>
         </td>
+
         <!-- Clock or Games of a Referee -->
         <td class="matches">
           <ClockComponent class="clock" v-if="clockPosition" />
           <MatchComponent
             v-if="!clockPosition"
             :matches="currentMatches"
+            :amount-of-referees="amountOfReferees"
           />
         </td>
       </tr>
@@ -152,7 +174,6 @@ setInterval(getUpComingMatches, 30000)
 <style scoped>
 .referees-list {
   width: 20%;
-  background-color: #f0f0f0;
   padding: 10px;
 }
 
@@ -165,27 +186,43 @@ setInterval(getUpComingMatches, 30000)
   width: 100%;
   padding: 10px;
   margin: 5px;
-  background-color: #4CAF50;
+  background-color: #007bff;
+  border: 3px solid #007bff;
   color: white;
-  border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .submit-btn:hover {
-  background-color: #45a049;
+  background-color: #0056b3;
 }
 
-.submit-btn:checked {
+.submit-btn.checked {
   background-color: white;
+  color: #007bff;
 }
 
+.submit-btn.priority {
+  background-color: #f44336;
+  border-color: #f44336;
+}
+
+.submit-btn.priority:hover {
+  background-color: #d32f2f;
+}
+
+.submit-btn.priority.checked {
+  background-color: white;
+  color: #f44336;
+}
 
 .clock {
   width: 100%;
   text-align: center;
   font-size: 14em;
   color: #333333;
+  position: fixed;
+  top: 30px;
 }
 
 

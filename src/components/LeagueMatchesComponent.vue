@@ -16,7 +16,16 @@ async function fetchGames() {
   try {
     const response = await axios.get(`${config.api}/matches?league=${props.leagueAbbrev}&league_stage=${props.stage}&format=json`);
     stageName.value = response.data.matches[0].league_stage;
-    splitAndSortMatches(response.data.matches);
+    if (response.data.league_stage_name !== 'Gruppe') {
+      groupedMatches.value = [];
+      groupedMatches.value[0] = response.data.matches;
+
+      for (const match of groupedMatches.value[0]) {
+        match.start = formatDate(match.start);
+      }
+    } else {
+      splitAndSortMatches(response.data.matches);
+    }
   } catch (error) {
     console.error(error);
   }
@@ -62,12 +71,23 @@ function formatDate(isoString) {
   return `${day} ${time}`;
 }
 
+// Updates every 20 seconds, if watch is not triggered
+const timeSinceLastUpdate = ref(0);
+async function updateTimeSinceLastUpdate() {
+  timeSinceLastUpdate.value += 1;
+  if (timeSinceLastUpdate.value >= 20) {
+    timeSinceLastUpdate.value = 0;
+    await fetchGames();
+  }
+}
+
+setInterval(updateTimeSinceLastUpdate, 1000);
+
 // Watch update
 watch(
   () => props.stage || props.leagueAbbrev,
   async () => {
-    console.log('Fetching games');
-    console.log(props.stage, props.leagueAbbrev);
+    timeSinceLastUpdate.value = 0;
     await fetchGames();
   },
   {

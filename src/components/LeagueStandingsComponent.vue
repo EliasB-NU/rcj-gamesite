@@ -12,9 +12,14 @@ const groupedStandings = ref([]);
 const latestStageName = ref('');
 
 async function fetchStandings(stage) {
-  latestStageName.value = props.league.league_stages[stage] || 'Unknown';
+  console.log('Fetching standings for stage: ', stage);
+  latestStageName.value = props.league.league_stages[stage] || 'Seeding';
+  let url = `${config.api}/standings?league=${props.league.abbrev}&league_stage=${stage}&format=json`;
+  if (stage === -1) {
+    url = `${config.api}/standings?league=${props.league.abbrev}&format=json`;
+  }
   try {
-    const response = await axios.get(`${config.api}/standings?league=${props.league.abbrev}&league_stage=${stage}&format=json`);
+    const response = await axios.get(url);
     const standings = replaceUndefinedWith0(response.data.standings);
     groupedStandings.value = [];
     splitStandings(standings);
@@ -51,10 +56,34 @@ function splitStandings(unsortedUnfiltered) {
     groupedStandings.value = sortedGroupedStandings.value;
 }
 
+// Updates every 20 seconds, if watch is not triggered
+const timeSinceLastUpdate = ref(0);
+async function updateTimeSinceLastUpdate() {
+  timeSinceLastUpdate.value += 1;
+  if (timeSinceLastUpdate.value >= 20) {
+    timeSinceLastUpdate.value = 0;
+
+    const latestStage = ref(-1);
+    for (let i = 0; i < props.league.league_stages.length; i++) {
+      await axios
+        .get(`${config.api}/standings?league=${props.league.abbrev}&league_stage=${i}&format=json`)
+        .then(() => {
+          latestStage.value = i;
+        })
+        .catch(() => {
+        });
+    }
+    await fetchStandings(latestStage.value);
+  }
+}
+
+setInterval(updateTimeSinceLastUpdate, 1000);
+
+// Fetch standings for the latest stage
 watch(
   () => props.league,
   async () => {
-    const latestStage = ref(0);
+    const latestStage = ref(-1);
     for (let i = 0; i < props.league.league_stages.length; i++) {
       await axios
         .get(`${config.api}/standings?league=${props.league.abbrev}&league_stage=${i}&format=json`)

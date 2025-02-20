@@ -2,6 +2,7 @@
 
 import Header from "@/components/Header.vue";
 import config from "@/config.js";
+import Footer from '@/components/Footer.vue'
 </script>
 
 <template>
@@ -45,6 +46,8 @@ import config from "@/config.js";
         </div>
       </div>
     </div>
+
+    <Footer />
   </div>
 </template>
 

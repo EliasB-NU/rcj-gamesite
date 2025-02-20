@@ -69,8 +69,6 @@ function cycleStage() {
   // Set the current stage ID
   stageId.value = stageArray[stageIndex];
 
-  console.log(`League: ${leagueName.value} (${leagueAbbrev.value}), Stage: ${stageId.value}`);
-
   // Move to the next stage
   stageIndex++;
 
