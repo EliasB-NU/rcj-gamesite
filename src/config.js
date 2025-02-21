@@ -19,6 +19,11 @@ const TournamentAbbreviation = 'vo25';
 export default {
   api: 'https://rcjsoccersys.dankel.info/rest/v1/'+TournamentAbbreviation,
 
+  // If each league stage should have a own cycled through stage or if they all should be on one for each league
+  // Maybe you want this, if you int leagues only have a few games
+  // Currently broken
+  ShowIntLeaguesStagesIndividual: false,
+
   EntryAbbrev: 'et',
   LwLEntryAbbrev: 'lwl1v',
 
