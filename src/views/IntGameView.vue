@@ -9,7 +9,6 @@ const leagueNames = ref(['Lightweight int.', 'Open int.', 'LwL vs Open'])
 const stages = ref(new Map())
 stages.value.set('lwli', { stage1: 0, stage2: 1})
 stages.value.set('open', { stage1: 0, stage2: 1})
-stages.value.set('lo', { stage1: 0})
 
 console.log(stages.value)
 
