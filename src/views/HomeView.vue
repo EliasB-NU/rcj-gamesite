@@ -8,6 +8,7 @@ import Footer from '@/components/Footer.vue'
 <template>
   <Header title="RCJ Stats" mode="Home" />
   <div class="page-container-projects">
+    <h2>Die Seite wird bis zum nächsten Einsatz grundlegend überarbeitet. Entschuldigt die Unannehmlichkeiten.</h2>
     <div class="projects-grid">
       <div class="project-container" v-on:click="$router.push('standings')">
         <div class="project-box">

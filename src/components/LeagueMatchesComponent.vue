@@ -107,7 +107,7 @@ watch(
         <h1 v-else>{{ matches.league_stage_name }}</h1>
       </div>
       <div class="standingsTable">
-        <table v-if="matches[0].team1 !== null && matches[0].team2 !== null">
+        <table>
           <thead>
           <tr>
             <th>Nr.</th>
@@ -131,6 +131,16 @@ watch(
             <td v-else>TBD</td>
             <td v-if="match.points1 !== null && match.points2 !== null">{{ match.points1 +' : '+ match.points2 }}</td>
             <td v-else>TBD</td>
+          </tr>
+          <tr v-else>
+            <td>{{ id+1 }}</td>
+            <td>TBD</td>
+            <td>TBD</td>
+            <td>{{ match.start }}</td>
+            <td v-if="match.pitch !== null">{{ match.pitch }}</td>
+            <td>TBD</td>
+            <td>TBD</td>
+            <td>TBD</td>
           </tr>
           </tbody>
         </table>

@@ -48,10 +48,10 @@ function extractRefereesAndAssignMatches(matches) {
 
       // Check for null team
       if (!match.team1) {
-        match.team1 = { name: 'Free from play' }
+        match.team1 = { name: 'TO BE DECIDED' }
       }
       if (!match.team2) {
-        match.team2 = { name: 'Free from play' }
+        match.team2 = { name: 'TO BE DECIDED' }
       }
     }
   }
