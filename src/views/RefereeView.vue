@@ -45,6 +45,14 @@ function extractRefereesAndAssignMatches(matches) {
   for (const match of matches) {
     for (const referee of match.referees) {
       refereesMatches.value.get(referee.first_name + ' ' + referee.last_name).push(match)
+
+      // Check for null team
+      if (!match.team1) {
+        match.team1 = { name: 'Free from play' }
+      }
+      if (!match.team2) {
+        match.team2 = { name: 'Free from play' }
+      }
     }
   }
 
