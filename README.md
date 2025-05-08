@@ -1,5 +1,8 @@
 # RCJ Gamesites
 
+This project should still work, but I recomment using the [RCJV-App](https://github.com/EliasB-NU/RCJV-APP).
+It has push notifications and features for all the other leagues as well.
+
 Fetches the all the games and standings from the Soccersys software by Marco Dankel and displays the game plan
 on the gameplan site, the standings on a site and all the games for each referee on another site.
 
